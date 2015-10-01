@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import math
 import sys
@@ -8,7 +8,7 @@ from multiprocessing import Process, Queue
 
 def initApplicants(size, topRange):
 	array=[]
-	for x in xrange(size):
+	for x in range(size):
 		array.append(np.random.random_integers(0, topRange))
 	return array
 
@@ -32,20 +32,19 @@ def groupSize(length, alg):
 
 def chooseApplicants(array, alg):
 	testGroup = groupSize(len(array), alg)
-	#print testGroup
 	highest = max(array[0:testGroup])
-	#print "Testing first " + str(len(array[0:testGroup]))
+	#print("Testing first " + str(len(array[0:testGroup])))
 	for x in array[testGroup-1:len(array)+1]:
 		if x >= highest:
 			return x
 
 def calculate(testCount, topRange, q):
 	localCorrect=0
-	for x in xrange(1, testCount+1):
+	for x in range(1, int(testCount+1)):
 		
 		applicants = initApplicants(applicantCount, topRange)
 		solution=chooseApplicants(applicants, sys.argv[3])
-		#print x
+		#print(x)
 		divisor=testCount/20
 		#if x % divisor == 0:
 		#	sys.stdout.write("\r%f" % int((float(x)/testCount)*100))
@@ -68,7 +67,7 @@ startTime = datetime.now()
 q = Queue()
 
 if quadMode=='quad':
-	print "Quad process mode..."
+	print("Quad process mode...")
 	threads=4
 	p1 = Process(target=calculate, args=(testCount/threads,topRange, q))
 	p1.start()
@@ -87,7 +86,7 @@ if quadMode=='quad':
 	
 	
 else:
-	print "Single process mode..."
+	print("Single process mode...")
 	threads=1
 	p1 = Process(target=calculate, args=(testCount/threads,topRange, q))
 	p1.start() 
@@ -100,9 +99,9 @@ else:
 correct=float(sum(results))
 
 sys.stdout.write("\n")
-print correct
-print str((correct/testCount)*100) + "% accuracy" 
-print "Operation took "+ str(datetime.now() - startTime)
+print(correct)
+print(str((correct/testCount)*100) + "% accuracy") 
+print("Operation took "+ str(datetime.now() - startTime))
 
 
 
