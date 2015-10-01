@@ -66,42 +66,44 @@ correct=0.00
 startTime = datetime.now()
 q = Queue()
 
-if quadMode=='quad':
-	print("Quad process mode...")
-	threads=4
-	p1 = Process(target=calculate, args=(testCount/threads,topRange, q))
-	p1.start()
-	p2 = Process(target=calculate, args=(testCount/threads,topRange, q))
-	p2.start()
-	p3 = Process(target=calculate, args=(testCount/threads,topRange, q))
-	p3.start()
-	p4 = Process(target=calculate, args=(testCount/threads,topRange, q))
-	p4.start()  
-	results = []
+if __name__ == '__main__':    
 
-	for i in range(threads):
-		#set block=True to block until we get a result
-		results.append(q.get(True))
-		     
-	
-	
-else:
-	print("Single process mode...")
-	threads=1
-	p1 = Process(target=calculate, args=(testCount/threads,topRange, q))
-	p1.start() 
-	results = []
+        if quadMode=='quad':
+                print("Quad process mode...")
+                threads=4
+                p1 = Process(target=calculate, args=(testCount/threads,topRange, q))
+                p1.start()
+                p2 = Process(target=calculate, args=(testCount/threads,topRange, q))
+                p2.start()
+                p3 = Process(target=calculate, args=(testCount/threads,topRange, q))
+                p3.start()
+                p4 = Process(target=calculate, args=(testCount/threads,topRange, q))
+                p4.start()  
+                results = []
 
-	for i in range(threads):
-		#set block=True to block until we get a result
-		results.append(q.get(True))
-	
-correct=float(sum(results))
+                for i in range(threads):
+                        #set block=True to block until we get a result
+                        results.append(q.get(True))
+                             
+                
+                
+        else:
+                print("Single process mode...")
+                threads=1
+                p1 = Process(target=calculate, args=(testCount/threads,topRange, q))
+                p1.start() 
+                results = []
 
-sys.stdout.write("\n")
-print(correct)
-print(str((correct/testCount)*100) + "% accuracy") 
-print("Operation took "+ str(datetime.now() - startTime))
+                for i in range(threads):
+                        #set block=True to block until we get a result
+                        results.append(q.get(True))
+	
+        correct=float(sum(results))
+
+        sys.stdout.write("\n")
+        print(correct)
+        print(str((correct/testCount)*100) + "% accuracy") 
+        print("Operation took "+ str(datetime.now() - startTime))
 
 
 
