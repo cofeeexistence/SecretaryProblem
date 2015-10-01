@@ -38,7 +38,7 @@ def chooseApplicants(array, alg):
 		if x >= highest:
 			return x
 
-def calculate(testCount, topRange, q):
+def calculate(testCount, topRange, q, progress='no'):
 	localCorrect=0
 	for x in range(1, int(testCount+1)):
 		
@@ -46,9 +46,10 @@ def calculate(testCount, topRange, q):
 		solution=chooseApplicants(applicants, sys.argv[3])
 		#print(x)
 		divisor=testCount/20
-		#if x % divisor == 0:
-		#	sys.stdout.write("\r%f" % int((float(x)/testCount)*100))
-		#	sys.stdout.flush()
+		if progress=='yes':
+                        if x % divisor == 0:
+                                sys.stdout.write("\r%d%% complete" % int((float(x)/testCount)*100))
+                                sys.stdout.flush()
 
 		if solution == max(applicants):
 			localCorrect += 1
@@ -71,7 +72,7 @@ if __name__ == '__main__':
         if quadMode=='quad':
                 print("Quad process mode...")
                 threads=4
-                p1 = Process(target=calculate, args=(testCount/threads,topRange, q))
+                p1 = Process(target=calculate, args=(testCount/threads,topRange, q, 'yes'))
                 p1.start()
                 p2 = Process(target=calculate, args=(testCount/threads,topRange, q))
                 p2.start()
@@ -101,7 +102,7 @@ if __name__ == '__main__':
         correct=float(sum(results))
 
         sys.stdout.write("\n")
-        print(correct)
+        #print(correct)
         print(str((correct/testCount)*100) + "% accuracy") 
         print("Operation took "+ str(datetime.now() - startTime))
 
