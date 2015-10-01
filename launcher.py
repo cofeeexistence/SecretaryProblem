@@ -38,6 +38,16 @@ def chooseApplicants(array, alg):
 		if x >= highest:
 			return x
 
+def progressBar(progress, completion, resolution=20):
+    index=math.ceil(((progress/completion)*resolution))
+    sys.stdout.write("\r|")
+    for x in range(index):
+        sys.stdout.write("#")
+    for x in range(resolution-index):
+        sys.stdout.write("-")
+    sys.stdout.write("| %f %% complete" % int((float(progress)/completion)*100))
+    sys.stdout.flush()
+    
 def calculate(testCount, topRange, q, progress='no'):
 	localCorrect=0
 	for x in range(1, int(testCount+1)):
@@ -48,12 +58,13 @@ def calculate(testCount, topRange, q, progress='no'):
 		divisor=testCount/20
 		if progress=='yes':
                         if x % divisor == 0:
-                                sys.stdout.write("\r%d%% complete" % int((float(x)/testCount)*100))
-                                sys.stdout.flush()
-
+                                
+                                progressBar((x), testCount)
 		if solution == max(applicants):
 			localCorrect += 1
 	q.put(localCorrect)
+
+
 
 
 ###BEGIN MAIN PROGRAM
