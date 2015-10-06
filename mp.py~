@@ -1,0 +1,24 @@
+#!/usr/bin/python3
+import math
+import sys
+import numpy as np
+from datetime import datetime
+from multiprocessing import Process, Queue
+
+def configValue(fileName, key):
+	configFile = open(fileName, 'r')
+	
+	cache = configFile.read()
+	
+	index = cache.find(key, 0, len(cache))
+	if index!=(-1):
+		end=cache.find(">", index+1, len(cache)+1)
+		configFile.close()
+		return cache[index+len(key):end]
+
+	configFile.close()
+
+x = input("what config value would you like to fetch?")
+print (configValue("Secretary.cfg", x))
+
+
