@@ -1,3 +1,0 @@
-1. create function "initApplicants" to generate and return a structure which contains an array of random numbers, the 	value of the largest number, and the number of variables in the array.
-2. Send array of applicants to another function, "chooseApplicant", which will process each array item sequentially 	and return the optimal applicant *without* being able to go back and choose a previous one.
-3. Value will be checked to determine whether or not it is correct, after generating n applicant lists and sending them to "chooseApplicant", the results will be tallied and an accuracy rating will be outputted to stdout.
