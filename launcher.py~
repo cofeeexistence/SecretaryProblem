@@ -8,6 +8,7 @@ from datetime import datetime
 from multiprocessing import Process, Queue
 import matplotlib.pyplot as plt
 import operator
+import time
 
 def configValue(fileName, key, returnType='str'):
 	configFile = open(fileName, 'r')
@@ -194,12 +195,14 @@ def findOptimalStopping(secretaryCount, method):
 			print("\n" +str(x)+" of "+str(secretaryCount/100) + " had accuracy of " + str(indexAccuracy))
 			progressBar(x, secretaryCount)
 			print("\n")
-	
-	if method=='-t': #ternary search
+	#print(method)
+	if method=="-t": #ternary search
+		
 		left=3
 		right=secretaryCount-1	
 		absolutePrecision=3
 		testers_hundreths=hundreths_arr(secretaryCount)
+		#print("got this far")
 		while True:
 			#left and right are the current bounds; the maximum is between them
 			if abs(right - left) <= absolutePrecision:
@@ -227,24 +230,49 @@ def findOptimalStopping(secretaryCount, method):
 	optimal_index=max(accuracy.items(), key=operator.itemgetter(1))[0]
 	optimal_value=accuracy[optimal_index]
 
-	print("\nOperation took "+ str(datetime.now() - startTime))
-	print("Optimal stopping point is: " + str(optimal_index) +" at " + str(optimal_value) + " accuracy.")
+	#print("\nOperation took "+ str(datetime.now() - startTime))
+	#print("Optimal stopping point is: " + str(optimal_index) +" at " + str(optimal_value) + " accuracy.")
 	
 	values = [] #in same order as traversing keys
 	keys = [] #also needed to preserve order
 	for key in accuracy.keys():
 		keys.append(key)
 		values.append(accuracy[key])	
-
-	plt.plot(keys, values, 'ro')
-	plt.show()
+	return optimal_index
+#	plt.plot(keys, values, 'ro')
+#	plt.show()
 			
 aV=configValue("Secretary.cfg", "applicantCount", 'int')
-print(str(aV))
-if len(sys.argv)==3:
-	findOptimalStopping(str(sys.argv[2]), str(sys.argv[1]))
-else:
-	findOptimalStopping(aV, str(sys.argv[1]))
+runTime=int(sys.argv[1])
+startTime=time.time()
+endTime=startTime+runTime
+x_count=10
+optimal_keys=[]
+optimal_values=[]
+
+while (time.time()<endTime):
+	cache=findOptimalStopping(x_count, "-t")
+	optimal_keys.append(x_count)
+	optimal_values.append(cache)
+	x_count+=int(x_count/10)
+
+plt.plot(optimal_keys, optimal_values, 'ro')
+plt.show()
+
+print(str(optimal_values))
+
+
+
+
+
+
+
+
+#print(str(aV))
+#if len(sys.argv)==3:
+#	findOptimalStopping(int(sys.argv[2]), str(sys.argv[1]))
+#else:
+#	findOptimalStopping(aV, str(sys.argv[1]))
 
 
 
