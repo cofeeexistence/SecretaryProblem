@@ -9,6 +9,7 @@ from multiprocessing import Process, Queue
 import matplotlib.pyplot as plt
 import operator
 import time
+import shelve
 
 def configValue(fileName, key, returnType='str'):
 	configFile = open(fileName, 'r')
@@ -225,7 +226,7 @@ def findOptimalStopping(secretaryCount, method):
 			    right = rightThird
 	
 	
-	print(str(accuracy))
+	#print(str(accuracy))
 	#accuracy_np=np.array(accuracy)
 	optimal_index=max(accuracy.items(), key=operator.itemgetter(1))[0]
 	optimal_value=accuracy[optimal_index]
@@ -242,16 +243,35 @@ def findOptimalStopping(secretaryCount, method):
 #	plt.plot(keys, values, 'ro')
 #	plt.show()
 			
+#def convert_dict(key, value):
+#	for x in range(len(key))
+	
+
+database=shelve.open('solutions.db', writeback=True)
+
+try:
+	database['mainDict']
+	
+except KeyError:
+	results={}
+	more=0
+else:
+	results=database['mainDict']
+	more = max(results.items(), key=operator.itemgetter(1))[0]
+
 aV=configValue("Secretary.cfg", "applicantCount", 'int')
 runTime=int(sys.argv[1])
 startTime=time.time()
 endTime=startTime+runTime
-x_count=10
+x_count=10+more
 optimal_keys=[]
 optimal_values=[]
 
+
+
 while (time.time()<endTime):
 	cache=findOptimalStopping(x_count, "-t")
+	results[x_count]=cache
 	optimal_keys.append(x_count)
 	optimal_values.append(cache)
 	x_count+=int(x_count/10)
@@ -259,7 +279,21 @@ while (time.time()<endTime):
 plt.plot(optimal_keys, optimal_values, 'ro')
 plt.show()
 
-print(str(optimal_values))
+total_keys=[]
+total_values=[]
+
+for key in results.keys():
+	total_keys.append(key)
+	total_values.append(results[key])	
+
+
+plt.plot(total_keys, total_values, 'ro')
+plt.show()
+
+print(str(results))
+
+database['mainDict']=results
+database.close()
 
 
 
