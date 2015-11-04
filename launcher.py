@@ -7,6 +7,7 @@ import numpy as np
 from datetime import datetime
 from multiprocessing import Process, Queue
 import matplotlib.pyplot as plt
+import operator
 
 def configValue(fileName, key, returnType='str'):
 	configFile = open(fileName, 'r')
@@ -158,36 +159,92 @@ def hundreths_arr(value):
 		
 		
 
+def ternarySearch(f, left, right, absolutePrecision):
+    """
+    Find maximum of unimodal function f() within [left, right]
+    To find the minimum, revert the if/else statement or revert the comparison.
+    """
+    while True:
+        #left and right are the current bounds; the maximum is between them
+        if abs(right - left) < absolutePrecision:
+            return (left + right)/2
+
+        leftThird = left + (right - left)/3
+        rightThird = right - (right - left)/3
+	
+	
+
+        if f(leftThird) < f(rightThird):
+            left = leftThird
+        else:
+            right = rightThird
+
 def findOptimalStopping(secretaryCount, method):
 	startTime = datetime.now()
 	values=[]
-	accuracy=[]
-	if method=='brute':
-		testers_hundreths=hundreths_arr(secretaryCount)
-		print(str(testers_hundreths))
-		for x in testers_hundreths:
+	accuracy={}
+	if method=='-b': #brute
+
+		#testers_hundreths=hundreths_arr(secretaryCount)
+		#print(str(testers_hundreths))
+		for x in range(secretaryCount):
 			indexAccuracy = testAccuracy("Secretary.cfg", x, secretaryCount)
-			accuracy.append(indexAccuracy)
-			values.append(x)
+			accuracy[x]=indexAccuracy
+			#values.append(x)
 			print("\n" +str(x)+" of "+str(secretaryCount/100) + " had accuracy of " + str(indexAccuracy))
 			progressBar(x, secretaryCount)
 			print("\n")
 	
+	if method=='-t': #ternary search
+		left=3
+		right=secretaryCount-1	
+		absolutePrecision=3
+		testers_hundreths=hundreths_arr(secretaryCount)
+		while True:
+			#left and right are the current bounds; the maximum is between them
+			if abs(right - left) <= absolutePrecision:
+			    break
+
+			leftThird = int(left + (right - left)/3)
+			rightThird = int(right - (right - left)/3)
+			
+			leftThird_f=testAccuracy("Secretary.cfg", leftThird, secretaryCount)
+			accuracy[int(leftThird)]=leftThird_f	
+			print("\n" +str(leftThird)+" of "+str(secretaryCount) + " had accuracy of " + str(leftThird_f))
+
+			rightThird_f=testAccuracy("Secretary.cfg", rightThird, secretaryCount)
+			accuracy[int(rightThird)]=rightThird_f	
+			print("\n" +str(rightThird)+" of "+str(secretaryCount) + " had accuracy of " + str(rightThird_f))
+
+			if leftThird_f < rightThird_f:
+			    left = leftThird
+			else:
+			    right = rightThird
 	
-	accuracy
-	accuracy_np=np.array(accuracy)
-	optimal_index=accuracy_np.argmax()
-	optimal_value=values[optimal_index]
+	
+	print(str(accuracy))
+	#accuracy_np=np.array(accuracy)
+	optimal_index=max(accuracy.items(), key=operator.itemgetter(1))[0]
+	optimal_value=accuracy[optimal_index]
 
 	print("\nOperation took "+ str(datetime.now() - startTime))
-	print("Optimal stopping point is: " + str(optimal_value))
+	print("Optimal stopping point is: " + str(optimal_index) +" at " + str(optimal_value) + " accuracy.")
 	
-	plt.plot(values, accuracy, 'ro')
+	values = [] #in same order as traversing keys
+	keys = [] #also needed to preserve order
+	for key in accuracy.keys():
+		keys.append(key)
+		values.append(accuracy[key])	
+
+	plt.plot(keys, values, 'ro')
 	plt.show()
 			
 aV=configValue("Secretary.cfg", "applicantCount", 'int')
 print(str(aV))
-findOptimalStopping(aV, 'brute')
+if len(sys.argv)==3:
+	findOptimalStopping(int(sys.argv[2]), str(sys.argv[1]))
+else:
+	findOptimalStopping(aV, str(sys.argv[1]))
 
 
 
