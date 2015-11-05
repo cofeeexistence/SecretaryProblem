@@ -267,13 +267,15 @@ x_count=10+more
 optimal_keys=[]
 optimal_values=[]
 
-
+time_dict={}
 
 while (time.time()<endTime):
+	instance_start_time=time.time()
 	cache=findOptimalStopping(x_count, "-t")
 	results[x_count]=cache
 	optimal_keys.append(x_count)
 	optimal_values.append(cache)
+	time_dict[x_count]=time.time()-instance_start_time
 	x_count+=int(x_count/10)
 
 plt.plot(optimal_keys, optimal_values, 'ro')
@@ -287,12 +289,14 @@ for key in results.keys():
 	total_values.append(results[key])	
 
 
+
 plt.plot(total_keys, total_values, 'ro')
 plt.show()
 
 print(str(results))
-
+print(str(time_dict))
 database['mainDict']=results
+#database['time_lib']=time_dict
 database.close()
 
 
