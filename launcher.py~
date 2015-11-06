@@ -190,7 +190,7 @@ def findOptimalStopping(secretaryCount, method):
 		#testers_hundreths=hundreths_arr(secretaryCount)
 		#print(str(testers_hundreths))
 		for x in range(secretaryCount):
-			indexAccuracy = testAccuracy("Secretary.cfg", x, secretaryCount)
+			indexAccuracy = testAccuracy("./cfg/Secretary.cfg", x, secretaryCount)
 			accuracy[x]=indexAccuracy
 			#values.append(x)
 			print("\n" +str(x)+" of "+str(secretaryCount/100) + " had accuracy of " + str(indexAccuracy))
@@ -212,11 +212,11 @@ def findOptimalStopping(secretaryCount, method):
 			leftThird = int(left + (right - left)/3)
 			rightThird = int(right - (right - left)/3)
 			
-			leftThird_f=testAccuracy("Secretary.cfg", leftThird, secretaryCount)
+			leftThird_f=testAccuracy("./cfg/Secretary.cfg", leftThird, secretaryCount)
 			accuracy[int(leftThird)]=leftThird_f	
 			print("\n" +str(leftThird)+" of "+str(secretaryCount) + " had accuracy of " + str(leftThird_f))
 
-			rightThird_f=testAccuracy("Secretary.cfg", rightThird, secretaryCount)
+			rightThird_f=testAccuracy("./cfg/Secretary.cfg", rightThird, secretaryCount)
 			accuracy[int(rightThird)]=rightThird_f	
 			print("\n" +str(rightThird)+" of "+str(secretaryCount) + " had accuracy of " + str(rightThird_f))
 
@@ -247,7 +247,7 @@ def findOptimalStopping(secretaryCount, method):
 #	for x in range(len(key))
 	
 
-database=shelve.open('solutions.db', writeback=True)
+database=shelve.open('./db/solutions.db', writeback=True)
 
 try:
 	database['mainDict']
@@ -259,7 +259,7 @@ else:
 	results=database['mainDict']
 	more = max(results.items(), key=operator.itemgetter(1))[0]
 
-aV=configValue("Secretary.cfg", "applicantCount", 'int')
+aV=configValue("./cfg/Secretary.cfg", "applicantCount", 'int')
 runTime=int(sys.argv[1])
 startTime=time.time()
 endTime=startTime+runTime

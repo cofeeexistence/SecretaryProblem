@@ -58,7 +58,6 @@ def chooseApplicants(array, testGroup):
 	if testGroup==0:
 		return 0
 	highest = max(array[0:testGroup])
-	#print("Testing first " + str(len(array[0:testGroup])))
 	for x in array[testGroup-1:len(array)+1]:
 		if x >= highest:
 			return x
@@ -96,16 +95,9 @@ def calculate(testCount, configFile, applicantCount, q, progress='no', customSiz
 			localCorrect += 1
 	q.put(localCorrect)
 
-
-
-
-###BEGIN MAIN PROGRAM
 def testAccuracy(configFile, testGroupSize, applicantCount, verbose='yes'):
 	testCount = configValue(configFile, "testCount", 'int')
 	quadMode = configValue(configFile, "quadMode")
-	#print(configValue(configFile, "topRange"))
-	
-
 	correct=0.00
 	startTime = datetime.now()
 	q = Queue()
@@ -145,7 +137,6 @@ def testAccuracy(configFile, testGroupSize, applicantCount, verbose='yes'):
 		if verbose=='yes':
 			sys.stdout.write("\n")
 			#print(correct)
-			
 			#print(str(accuracy) + "% accuracy") 
 			#print("Operation took "+ str(datetime.now() - startTime))
 
@@ -187,16 +178,14 @@ def findOptimalStopping(secretaryCount, method):
 	accuracy={}
 	if method=='-b': #brute
 
-		#testers_hundreths=hundreths_arr(secretaryCount)
-		#print(str(testers_hundreths))
 		for x in range(secretaryCount):
-			indexAccuracy = testAccuracy("Secretary.cfg", x, secretaryCount)
+			indexAccuracy = testAccuracy("./cfg/Secretary.cfg", x, secretaryCount)
 			accuracy[x]=indexAccuracy
 			#values.append(x)
 			print("\n" +str(x)+" of "+str(secretaryCount/100) + " had accuracy of " + str(indexAccuracy))
 			progressBar(x, secretaryCount)
 			print("\n")
-	#print(method)
+
 	if method=="-t": #ternary search
 		
 		left=3
@@ -212,11 +201,11 @@ def findOptimalStopping(secretaryCount, method):
 			leftThird = int(left + (right - left)/3)
 			rightThird = int(right - (right - left)/3)
 			
-			leftThird_f=testAccuracy("Secretary.cfg", leftThird, secretaryCount)
+			leftThird_f=testAccuracy("./cfg/Secretary.cfg", leftThird, secretaryCount)
 			accuracy[int(leftThird)]=leftThird_f	
 			print("\n" +str(leftThird)+" of "+str(secretaryCount) + " had accuracy of " + str(leftThird_f))
 
-			rightThird_f=testAccuracy("Secretary.cfg", rightThird, secretaryCount)
+			rightThird_f=testAccuracy("./cfg/Secretary.cfg", rightThird, secretaryCount)
 			accuracy[int(rightThird)]=rightThird_f	
 			print("\n" +str(rightThird)+" of "+str(secretaryCount) + " had accuracy of " + str(rightThird_f))
 
@@ -226,8 +215,7 @@ def findOptimalStopping(secretaryCount, method):
 			    right = rightThird
 	
 	
-	#print(str(accuracy))
-	#accuracy_np=np.array(accuracy)
+
 	optimal_index=max(accuracy.items(), key=operator.itemgetter(1))[0]
 	optimal_value=accuracy[optimal_index]
 
@@ -243,11 +231,10 @@ def findOptimalStopping(secretaryCount, method):
 #	plt.plot(keys, values, 'ro')
 #	plt.show()
 			
-#def convert_dict(key, value):
-#	for x in range(len(key))
+
 	
 
-database=shelve.open('solutions.db', writeback=True)
+database=shelve.open('./db/solutions.db', writeback=True)
 
 try:
 	database['mainDict']
@@ -259,7 +246,7 @@ else:
 	results=database['mainDict']
 	more = max(results.items(), key=operator.itemgetter(1))[0]
 
-aV=configValue("Secretary.cfg", "applicantCount", 'int')
+aV=configValue("./cfg/Secretary.cfg", "applicantCount", 'int')
 runTime=int(sys.argv[1])
 startTime=time.time()
 endTime=startTime+runTime
@@ -302,15 +289,6 @@ database.close()
 
 
 
-
-
-
-
-#print(str(aV))
-#if len(sys.argv)==3:
-#	findOptimalStopping(int(sys.argv[2]), str(sys.argv[1]))
-#else:
-#	findOptimalStopping(aV, str(sys.argv[1]))
 
 
 
