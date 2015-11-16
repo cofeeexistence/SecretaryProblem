@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 import operator
 import time
 import shelve
+from mpl_toolkits.mplot3d import Axes3D
+
+
 
 def configValue(fileName, key, returnType='str'):
 	configFile = open(fileName, 'r')
@@ -27,8 +30,9 @@ def configValue(fileName, key, returnType='str'):
 	
 	configFile.close()
 
+topRange = configValue("./cfg/Secretary.cfg", "topRange", 'int')
 
-def initApplicants(size, topRange):
+def initApplicants(size):
 	array=[]
 	for x in range(size):
 		array.append(np.random.random_integers(0, topRange))
@@ -73,12 +77,11 @@ def progressBar(progress, completion, resolution=20):
     sys.stdout.flush()
     
 def calculate(testCount, configFile, applicantCount, q, progress='no', customSize='no', sizeValue=0):
-	topRange = configValue(configFile, "topRange", 'int')
 	alg = configValue(configFile, "alg")
 	localCorrect=0
 	for x in range(1, int(testCount+1)):
 		
-		applicants = initApplicants(applicantCount, topRange)
+		applicants = initApplicants(applicantCount)
 
 		if customSize=='yes':
 			solution=chooseApplicants(applicants, sizeValue)
@@ -230,63 +233,147 @@ def findOptimalStopping(secretaryCount, method):
 	return optimal_index
 #	plt.plot(keys, values, 'ro')
 #	plt.show()
+
 			
+def getArg(arg_name):
+	return sys.argv[sys.argv.index(arg_name)+1]
 
+
+def isArg(arg_name):
+	try:
+		sys.argv.index(arg_name)
+	
+	except ValueError:
+		return False
+	else:
+		return True
 	
 
-database=shelve.open('./db/solutions.db', writeback=True)
+def calcDimension(verbose, dimension):
 
-try:
-	database['mainDict']
-	
-except KeyError:
+	global topRange
+	topRange=dimension 	
 	results={}
-	more=0
-else:
-	results=database['mainDict']
-	more = max(results.items(), key=operator.itemgetter(1))[0]
+	database=shelve.open('./db/solutions.db', writeback=True)
 
-aV=configValue("./cfg/Secretary.cfg", "applicantCount", 'int')
-runTime=int(sys.argv[1])
-startTime=time.time()
-endTime=startTime+runTime
-x_count=10+more
-optimal_keys=[]
-optimal_values=[]
+	try:
+		database['mainDict'[dimension]]
+	
+	except KeyError:
+		results={}
+		more=0
+	except IndexError:
+		results={}
+		more=0
+	else:
+		results=database['mainDict'[dimension]]
+		if isArg('-start'):
+			more=int(getArg('-start'))
+		else:
+			more = max(results.items(), key=operator.itemgetter(1))[0]
 
-time_dict={}
+	if isArg('run'):
 
-while (time.time()<endTime):
-	instance_start_time=time.time()
-	cache=findOptimalStopping(x_count, "-t")
-	results[x_count]=cache
-	optimal_keys.append(x_count)
-	optimal_values.append(cache)
-	time_dict[x_count]=time.time()-instance_start_time
-	x_count+=int(x_count/10)
+		#aV=configValue("./cfg/Secretary.cfg", "applicantCount", 'int')
+		runTime=int(getArg('run'))
+		startTime=time.time()
+		endTime=startTime+runTime
+		x_count=10+more
+		optimal_keys=[]
+		optimal_values=[]
 
-plt.plot(optimal_keys, optimal_values, 'ro')
-plt.show()
+		time_dict={}
 
-total_keys=[]
-total_values=[]
+		while (time.time()<endTime):
+			instance_start_time=time.time()
+			cache=findOptimalStopping(x_count, "-t")
+			results[x_count]=cache
+			optimal_keys.append(x_count)
+			optimal_values.append(cache)
+			time_dict[x_count]=time.time()-instance_start_time
+			x_count+=int(x_count/10)
+		
+		if verbose:
+			plt.plot(optimal_keys, optimal_values, 'ro')
+			plt.show()
 
-for key in results.keys():
-	total_keys.append(key)
-	total_values.append(results[key])	
+			print(str(time_dict))
+
+		['mainDict'[dimension]]=results
+
+	elif isArg('run-until'):
+
+		#aV=configValue("./cfg/Secretary.cfg", "applicantCount", 'int')
+		until=int(getArg('run-until'))
+		x_count=10+more
+		optimal_keys=[]
+		optimal_values=[]
+
+		while (x_count<until):
+			cache=findOptimalStopping(x_count, "-t")
+			results[x_count]=cache
+			optimal_keys.append(x_count)
+			optimal_values.append(cache)
+			x_count+=int(x_count/10)
+
+		if verbose:
+			plt.plot(optimal_keys, optimal_values, 'ro')
+			plt.show()
+		print(results)
+		whole_db=database['mainDict']
+		print(whole_db)
+		print(dimension)
+		whole_db[dimension]=results
+		database['mainDict']=whole_db
+
+	if verbose:
+		total_keys=[]
+		total_values=[]
+	
+		for key in results.keys():
+			total_keys.append(key)
+			total_values.append(results[key])	
+
+		plt.plot(total_keys, total_values, 'ro')
+		plt.show()
+		print(str(results))
+
+	database.close()
+
+if isArg('calculate') and isArg('-from') and isArg('-to'):
+	
+	_from=int(getArg('-from'))
+	to=int(getArg('-to'))+1	
+	
+	for dim in range(_from, to):
+		print("Calculating Dimension"+str(dim))
+		calcDimension(False, dim)
+		
 
 
+elif isArg('show_3d'):
+	database=shelve.open('./db/solutions.db', writeback=True)
+	fig = plt.figure()
+	ax = fig.add_subplot(111, projection='3d')
+	for dimKey_z, dimDict in database['mainDict'].items():
+		total_keys=[]
+		total_values=[]
+		
+		for key in dimDict.keys():
+			total_keys.append(key)
+			total_values.append(dimDict[key])
+	
+		ax.bar(total_keys, total_values, dimKey_z, zdir='y')
+	ax.set_xlabel('Number of applicants')
+	ax.set_zlabel('Optimal stopping value')
+	ax.set_ylabel('Fitness resolution')
+	plt.show()
+	database.close()
+	
+	
 
-plt.plot(total_keys, total_values, 'ro')
-plt.show()
-
-print(str(results))
-print(str(time_dict))
-database['mainDict']=results
-#database['time_lib']=time_dict
-database.close()
-
-
+	
+	
 
 
 
